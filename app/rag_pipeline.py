@@ -63,7 +63,10 @@ class RAGPipeline:
             c.metadata["source"] = label
 
         embedded_chunks = self.embedder.embed_chunks(chunks)
-        self.store.add_embedded_chunks(embedded_chunks)
+        # delete-then-upsert: handles the case where re-indexing a
+        # changed document now produces fewer chunks than before (see
+        # the tradeoff note in vector_store.py's docstring)
+        self.store.reindex_source(label, embedded_chunks)
 
         return {
             "source": label,

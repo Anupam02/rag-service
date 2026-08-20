@@ -92,11 +92,13 @@ rm -rf chroma_db
 Roughly in the order I'd tackle them:
 
 ### Correctness / robustness (do these first)
-- **Idempotent indexing.** Re-indexing the same document today creates
-  duplicate vectors (`store.add_embedded_chunks` always generates fresh
-  random UUIDs). Fix: derive deterministic chunk IDs from
-  `hash(source + chunk_index)` and use ChromaDB's `upsert` instead of `add`,
-  so re-indexing a changed document replaces old chunks instead of piling up.
+- ~~**Idempotent indexing.**~~ **Done.** Chunk IDs are now derived
+  deterministically from `(source, chunk_index)` via `make_chunk_id()` in
+  `vector_store.py`, and indexing uses `upsert` + `reindex_source`
+  (delete-then-upsert) instead of `add`. Re-indexing the same document no
+  longer creates duplicates, and re-indexing a document that now produces
+  *fewer* chunks correctly prunes the old extras instead of leaving them
+  orphaned.
 - **Minimum chunk size filter.** Very short "orphan" chunks (e.g. an
   isolated heading like `"RAG Architecture Notes"`) produce weak, noisy
   embeddings that occasionally win a retrieval slot by accident. Merge any
