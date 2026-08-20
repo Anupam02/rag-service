@@ -1,0 +1,20 @@
+RAG Architecture Notes
+
+Retrieval-Augmented Generation combines a retrieval system with a generative
+language model. Instead of relying purely on the model's parametric memory,
+RAG fetches relevant text chunks from an external knowledge base at query
+time and feeds them into the model's context window.
+
+Why RAG matters: LLMs have a fixed knowledge cutoff and can hallucinate
+facts. RAG grounds responses in retrievable, verifiable source documents,
+and lets you update the knowledge base without retraining the model.
+
+The core components are: a document loader, a chunking strategy, an
+embedding model, a vector store, a retriever, and a generator. Each piece
+can be swapped independently, which is why RAG systems are often built
+with clean interfaces between stages.
+
+Chunk size is a critical tuning parameter. Chunks that are too large dilute
+the embedding's semantic focus, hurting retrieval precision. Chunks that
+are too small lose surrounding context, hurting the generator's ability to
+produce a coherent answer.
